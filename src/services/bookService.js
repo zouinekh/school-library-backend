@@ -2,11 +2,21 @@ const Book = require('../models/Book');
 const paginationGuard = require('../utils/paginationGuard');
 
 exports.getAllBooks = async (query) => {
-    const { page, size,skip } = paginationGuard(query);
+    const { page, size, skip } = paginationGuard(query);
+    const { search } = query;
+    let filter = {};
+    if (search) {
+      filter = {
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { author: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
 
     const [data, totalItems] = await Promise.all([
-      Book.find().skip(skip).limit(size),
-      Book.countDocuments()
+      Book.find(filter).skip(skip).limit(size),
+      Book.countDocuments(filter)
     ]);
   
     return {

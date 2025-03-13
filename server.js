@@ -13,6 +13,7 @@ app.use(apiLimiter);
 
 app.use('/books', require('./src/routes/books'));
 app.use('/checkouts', require('./src/routes/checkouts'));
+app.use('/dashboard', require('./src/routes/dashboard')); // Add the new dashboard route
 
 app.use((err, req, res, next) => {
   console.error('Server Error:', err.stack);
