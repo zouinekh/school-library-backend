@@ -37,6 +37,7 @@ exports.createBook = async (bookData) => {
     if (book.title.trim() === '' || book.author.trim() === '') {
       throw new Error('Title and author are required');
     }
+
   return await book.save();
 };
 exports.getBookById = async (bookId) => {
@@ -44,6 +45,9 @@ exports.getBookById = async (bookId) => {
 };
 
 exports.updateBook = async (bookId, updateData) => {
+  if (book.title.trim() === '' || book.author.trim() === '') {
+    throw new Error('Title and author are required');
+  }
   return await Book.findOneAndUpdate(
     { id: bookId },
     updateData,
