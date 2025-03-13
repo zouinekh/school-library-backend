@@ -4,10 +4,20 @@ const paginationGuard = require('../utils/paginationGuard');
 
 exports.getAllCheckouts = async (query) => {
     const { page, size, skip } = paginationGuard(query);
+    const { search } = query;
+    let filter = {};
+    if (search) {
+      filter = {
+        $or: [
+          { studentName: { $regex: search, $options: 'i' } },
+          { bookId: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
 
     const [data, totalItems] = await Promise.all([
-        Checkout.find().skip(skip).limit(size),
-        Checkout.countDocuments()
+        Checkout.find(filter).skip(skip).limit(size),
+        Checkout.countDocuments(filter)
     ]);
 
     return {
