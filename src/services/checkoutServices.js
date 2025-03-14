@@ -10,7 +10,6 @@ exports.getAllCheckouts = async (query) => {
       filter = {
         $or: [
           { studentName: { $regex: search, $options: 'i' } },
-          { bookId: { $regex: search, $options: 'i' } }
         ]
       };
     }
@@ -37,7 +36,7 @@ exports.createCheckout = async (checkoutData) => {
         throw new Error('Invalid checkout data - missing required fields');
     }
     console.log(checkoutData)
-    const book = await Book.findOne({ id: checkoutData.bookId });
+    const book = await Book.findById(checkoutData.bookId);
     if (!book || book.availableCopies < 1) {
         throw new Error('Book unavailable');
     }
@@ -59,7 +58,7 @@ exports.returnBook = async (checkoutId) => {
 
     if (!checkout) throw new Error('Checkout not found');
 
-    const book = await Book.findOne({ id: checkout.bookId });
+    const book = await Book.findById(checkout.bookId);
     if (book) {
         book.availableCopies += 1;
         await book.save();

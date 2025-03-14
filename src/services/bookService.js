@@ -31,30 +31,30 @@ exports.getAllBooks = async (query) => {
   };
 
 exports.createBook = async (bookData) => {
-    
   const book = new Book(bookData);
-   if (!book) throw new Error('Failed to add book');
-    if (book.title.trim() === '' || book.author.trim() === '') {
-      throw new Error('Title and author are required');
-    }
+  if (!book) throw new Error('Failed to add book');
+  if (book.title.trim() === '' || book.author.trim() === '') {
+    throw new Error('Title and author are required');
+  }
 
   return await book.save();
 };
+
 exports.getBookById = async (bookId) => {
-  return await Book.findOne({ id: bookId });
+  return await Book.findById(bookId);
 };
 
 exports.updateBook = async (bookId, updateData) => {
   if (updateData.title.trim() === '' || updateData.author.trim() === '') {
     throw new Error('Title and author are required');
   }
-  return await Book.findOneAndUpdate(
-    { id: bookId },
+  return await Book.findByIdAndUpdate(
+    bookId,
     updateData,
     { new: true }
   );
 };
 
 exports.deleteBook = async (bookId) => {
-  return await Book.findOneAndDelete({ id: bookId });
+  return await Book.findByIdAndDelete(bookId);
 };

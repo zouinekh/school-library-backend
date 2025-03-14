@@ -8,8 +8,16 @@ const CheckoutSchema = new mongoose.Schema({
       minlength: [2, 'Student name must be at least 2 characters']
     },
     bookId: { 
-      type: String, 
-      required: [true, 'Book ID is required'] 
+      type: mongoose.Schema.Types.ObjectId, 
+      required: [true, 'Book ID is required'],
+      ref: 'Book',
+      validate: {
+        validator: async function(value) {
+          const book = await mongoose.model('Book').findById(value);
+          return book !== null;
+        },
+        message: 'Book with this ID does not exist'
+      }
     },
     checkoutDate: { 
       type: Date, 

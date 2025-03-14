@@ -27,12 +27,6 @@ const AUTHORS = [
   'Susan Martin', 'Thomas Thompson', 'Margaret Robinson', 'Christopher Lewis', 'Jessica Lee'
 ];
 
-
-const generateRandomId = () => {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
-};
-
-
 const getRandomItem = (array) => {
   return array[Math.floor(Math.random() * array.length)];
 };
@@ -44,15 +38,12 @@ const getRandomDate = (pastDays = 365) => {
   return pastDate;
 };
 
-
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-
 const seedDatabase = async () => {
   try {
-   
     await connectDB();
     
     console.log('Dropping existing collections...');
@@ -60,55 +51,59 @@ const seedDatabase = async () => {
     await Checkout.collection.drop();
     console.log('Collections dropped successfully');
     console.log('Generating books...');
-    const books = [];
+    
+    const booksWithIds = [];
     
     for (let i = 0; i < TOTAL_BOOKS; i++) {
-      const bookId = generateRandomId();
       const title = `${getRandomItem(BOOK_TITLES)} ${i + 1}`;
       const author = getRandomItem(AUTHORS);
       const availableCopies = getRandomNumber(1, 10);
-      books.push({
+      
+      const book = new Book({
         title,
         author,
-        id: bookId,
         availableCopies
       });
+      
+      const savedBook = await book.save();
+      booksWithIds.push(savedBook);
     }
-    await Book.insertMany(books);
-    console.log(`${books.length} books created successfully`);
+    
+    console.log(`${booksWithIds.length} books created successfully`);
     console.log('Generating checkouts...');
     const checkouts = [];
     
     for (let i = 0; i < TOTAL_CHECKOUTS; i++) {
-      const randomBook = books[Math.floor(Math.random() * books.length)];
+      const randomBook = booksWithIds[Math.floor(Math.random() * booksWithIds.length)];
       const studentName = getRandomItem(STUDENT_NAMES);
       const checkoutDate = getRandomDate();
       const isReturned = Math.random() < 0.7;
       let returnDate = null;
+      
       if (isReturned) {
         returnDate = new Date(checkoutDate);
         returnDate.setDate(checkoutDate.getDate() + getRandomNumber(1, 30));
       } else {
-        const bookIndex = books.findIndex(book => book.id === randomBook.id);
-        if (bookIndex !== -1 && books[bookIndex].availableCopies > 0) {
-          books[bookIndex].availableCopies--;
+        const bookIndex = booksWithIds.findIndex(book => book._id.toString() === randomBook._id.toString());
+        if (bookIndex !== -1 && booksWithIds[bookIndex].availableCopies > 0) {
+          booksWithIds[bookIndex].availableCopies--;
         }
       }
       
       checkouts.push({
         studentName,
-        bookId: randomBook.id,
+        bookId: randomBook._id,
         checkoutDate,
         returnDate
       });
     }
     
-    
     await Checkout.insertMany(checkouts);
     console.log(`${checkouts.length} checkouts created successfully`);
-    for (const book of books) {
-      await Book.findOneAndUpdate({ id: book.id }, { availableCopies: book.availableCopies });
+    for (const book of booksWithIds) {
+      await Book.findByIdAndUpdate(book._id, { availableCopies: book.availableCopies });
     }
+    
     console.log('Database seeded successfully!');
     process.exit(0);
   } catch (error) {
@@ -116,4 +111,5 @@ const seedDatabase = async () => {
     process.exit(1);
   }
 };
+
 seedDatabase();
