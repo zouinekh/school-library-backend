@@ -49,6 +49,7 @@ school-library-backend/
 ### Prerequisites
 
 - Node.js installed
+- Node version used v20.18.1
 
 ### Installation
 
