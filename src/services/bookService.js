@@ -15,7 +15,7 @@ exports.getAllBooks = async (query) => {
     }
 
     const [data, totalItems] = await Promise.all([
-      Book.find(filter).skip(skip).limit(size),
+      Book.find(filter).skip(skip).limit(size).sort({ _id: -1 }),
       Book.countDocuments(filter)
     ]);
   
@@ -45,7 +45,7 @@ exports.getBookById = async (bookId) => {
 };
 
 exports.updateBook = async (bookId, updateData) => {
-  if (book.title.trim() === '' || book.author.trim() === '') {
+  if (updateData.title.trim() === '' || updateData.author.trim() === '') {
     throw new Error('Title and author are required');
   }
   return await Book.findOneAndUpdate(

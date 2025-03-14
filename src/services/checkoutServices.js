@@ -16,7 +16,7 @@ exports.getAllCheckouts = async (query) => {
     }
 
     const [data, totalItems] = await Promise.all([
-        Checkout.find(filter).skip(skip).limit(size),
+        Checkout.find(filter).skip(skip).limit(size).sort({ checkoutDate: -1 }),
         Checkout.countDocuments(filter)
     ]);
 
